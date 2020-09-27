@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -59,6 +60,54 @@ func main() {
 	test(1, 8)
 	sliceContent()
 	structure()
+
+	var u userTwo
+	u.name = "Tom"
+	u.age = 20
+
+	var p Printer = u
+	p.PrintUser()
+
+	fmt.Println("-------------------")
+	go task(1)
+
+	go task(2)
+
+	time.Sleep(time.Second * 5)
+
+	ch2 := make(chan string, 1)
+	// 下面就是传说中的通过启用一个Goroutine来并发的执行代码块的方法。
+	// 关键字 go 后跟的就是需要被并发执行的代码块，它由一个匿名函数代表。
+	// 对于 go 关键字以及函数编写方法，我们后面再做专门介绍。
+	// 在这里，我们只要知道在花括号中的就是将要被并发执行的代码就可以了。
+	go func() {
+		ch2 <- ("已到达")
+	}()
+	var value string = "数据"
+	value = value + (<-ch2)
+	fmt.Println(value)
+
+
+}
+
+func consumer(data chan int, done chan bool)  {
+	for x := range data {
+		println("recv", x)
+	}
+
+	done <- true
+}
+
+func producer(data chan int)  {
+	
+}
+
+func task(id int) {
+	fmt.Println("测试", id)
+	for i :=0; i < 10;i++ {
+		fmt.Printf("%d: %d\n", id, i)
+		time.Sleep(time.Second)
+	}
 }
 
 func div(a string, b int) (string, error) {
@@ -149,5 +198,18 @@ func (u userOne) ToString() string {
 type managerOne struct {
 	userOne
 	title string
+}
+
+type userTwo struct {
+	name string
+	age byte
+}
+
+func (u userTwo) PrintUser()  {
+	fmt.Println("userTwo", u)
+}
+
+type Printer interface {
+	PrintUser()
 }
 
